@@ -1,35 +1,56 @@
 import tarfile
-import sys
 import json
 import dateutil.parser
 import matplotlib.pyplot as plt
 import argparse
+from operator import attrgetter
 
-def main(datafile, hero):
+def average(general, datapoint):
+    try:
+        damage = general[datapoint]
+        ten_minutes = general['time_played'] * 6
+        return damage/ten_minutes
+    except KeyError:
+        return 0
+
+def damage(general):
+    return average(general, 'hero_damage_done')
+
+
+def deaths(general):
+    return average(general, 'deaths')
+
+
+def eliminations(general):
+    return average(general, 'eliminations')
+
+
+def wins(general):
+    return average(general, 'games_won')
+
+def main(datafile):
     tar = tarfile.open(datafile)
 
-    graph = dict()
-    for tarinfo in tar:
+    heroes = ['pharah', 'bastion', "reinhardt", "tracer", "symmetra", "roadhog", "moira", "zarya"]
+    files = sorted((t for t in tar if t.name.endswith('json')), key=attrgetter('name'))
+
+    days = []
+    for tarinfo in files:
         t = tar.extractfile(tarinfo)
         try:
-            d = json.load(t)
-            general = d['us']['heroes']['stats']['quickplay'][hero]['general_stats']
-            damage = general['hero_damage_done']
-            deaths = general['deaths']
-            ten_minutes = general['time_played'] * 6
             dt = dateutil.parser.parse(tarinfo.name[19:27])
-            graph[dt] = damage/ten_minutes
-            # graph[dt] = deaths/ten_minutes
-            # print(date.date(), damage/ten_minutes, deaths/ten_minutes)
-        except (AttributeError, TypeError):
+            d = json.load(t)
+            hero_dict = [d['us']['heroes']['stats']['quickplay'][hero]['general_stats'] for hero in heroes]
+            days.append((dt, hero_dict))
+        except (AttributeError, TypeError, KeyError):
             pass
 
-    dates = sorted(graph.keys())
-    values = [graph[dt] for dt in dates]
 #    plt.ylim(0,20)
-    plt.suptitle(hero + " damage")
-    plt.plot_date(dates, values, linestyle='solid', marker='None')
+    plt.suptitle("wins")
+    for i in range(len(heroes)):
+        plt.plot_date([d[0] for d in days], [wins(d[1][i]) for d in days], label=heroes[i], linestyle='solid', marker='None')
     plt.grid(True)
+    plt.legend()
     plt.show()
 
     tar.close()
@@ -37,8 +58,6 @@ def main(datafile, hero):
 #
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--hero', help='hero to display')
     parser.add_argument('datafile', help='data file')
     args = parser.parse_args()
-    main(args.datafile, args.hero)
-
+    main(args.datafile)
