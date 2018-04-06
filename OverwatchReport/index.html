@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+
+    <title>Overwatch</title>
+    <style>
+      #container {
+        min-width: 310px;
+        max-width: 800px;
+        height: 400px;
+        margin: 0 auto
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Overwatch</h1>
+
+    <select id="hero">
+      <option value="bastion">Bastion</option>
+      <option value="lucio">Lucio</option>
+      <option value="moira">Moira</option>
+      <option value="pharah">Pharah</option>
+      <option value="reinhardt">Reinhardt</option>
+      <option value="roadhog">Roadhog</option>
+      <option value="symmetra">Symmetra</option>
+      <option value="tracer">Tracer</option>
+      <option value="zarya">Zarya</option>
+    </select>
+
+    <select id="stat">
+      <option>Cards</option>
+      <option>Damage</option>
+      <option>Deaths</option>
+      <option>Eliminations</option>
+      <option>Medals</option>
+      <option>Objective Kills</option>
+      <option>Objective Time</option>
+      <option>Wins</option>    </select>
+
+    <div id="container"></div>
+    <script>
+      // You can also require other files to run in this process
+      require('./renderer.js')
+    </script>
+  </body>
+</html>
